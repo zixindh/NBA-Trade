@@ -1,5 +1,4 @@
 | Player Name | From Team | To Team |
-|-------------|-----------|---------|
 | Kevin Durant | Phoenix Suns | Houston Rockets |
 | Kristaps Porziņģis | Boston Celtics | Atlanta Hawks |
 | Nickeil Alexander-Walker | Minnesota Timberwolves | Atlanta Hawks |
