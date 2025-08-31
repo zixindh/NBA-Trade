@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBA Player Movements - Summer 2025</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            text-align: center;
+            background-color: #1e3a8a;
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        tr:hover {
+            background-color: #e3f2fd;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏀 NBA Player Movements - Summer 2025</h1>
+        <p>Complete list of all NBA player transactions and team changes for the 2025-26 season</p>
+    </div>
+
+    <div class="container">
+        <h2>Player Movements</h2>
+        <div id="trades-content" class="loading">
+            Loading NBA trades data...
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Data sourced from Wikipedia - List of 2025–26 NBA season transactions</p>
+        <p>Last updated: <span id="last-updated"></span></p>
+    </div>
+
+    <script>
+        async function loadTradesData() {
+            try {
+                const response = await fetch('./trades.md');
+                const markdown = await response.text();
+
+                if (!markdown.trim()) {
+                    document.getElementById('trades-content').innerHTML = `
+                        <p style="text-align: center; color: #666; padding: 40px;">
+                            🚧 NBA trades data is being processed...<br>
+                            Please check back soon!
+                        </p>
+                    `;
+                    return;
+                }
+
+                // Simple markdown table parser
+                const lines = markdown.trim().split('\n');
+                if (lines.length < 2) {
+                    document.getElementById('trades-content').innerHTML = `
+                        <p style="text-align: center; color: #666; padding: 40px;">
+                            No trades data available yet.
+                        </p>
+                    `;
+                    return;
+                }
+
+                // Skip header line and parse table
+                const dataLines = lines.slice(1);
+                let html = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Player Name</th>
+                                <th>From Team</th>
+                                <th>To Team</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                dataLines.forEach(line => {
+                    // Parse markdown table row: | Player | From | To |
+                    const cells = line.split('|').slice(1, -1).map(cell => cell.trim());
+                    if (cells.length >= 3 && cells[0] && cells[1] && cells[2]) {
+                        // Skip entries where from and to team are the same
+                        if (cells[1] !== cells[2]) {
+                            html += `
+                                <tr>
+                                    <td>${cells[0]}</td>
+                                    <td>${cells[1]}</td>
+                                    <td>${cells[2]}</td>
+                                </tr>
+                            `;
+                        }
+                    }
+                });
+
+                html += `
+                        </tbody>
+                    </table>
+                `;
+
+                document.getElementById('trades-content').innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading trades data:', error);
+                document.getElementById('trades-content').innerHTML = `
+                    <p style="text-align: center; color: #ff6b6b; padding: 40px;">
+                        ❌ Error loading trades data. Please try again later.
+                    </p>
+                `;
+            }
+        }
+
+        // Set last updated date
+        document.getElementById('last-updated').textContent = new Date().toLocaleDateString();
+
+        // Load data when page loads
+        window.addEventListener('DOMContentLoaded', loadTradesData);
+    </script>
+</body>
+</html>
